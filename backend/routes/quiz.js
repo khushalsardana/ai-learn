@@ -96,7 +96,7 @@ Requirements:
 router.post('/submit', requireAuth, async (req, res) => {
   try {
     const { quizId, answers, timeSpent } = req.body;
-    const userId = req.session.userId;
+    const userId = req.userId; // Changed from req.session.userId to req.userId (JWT)
 
     if (!quizId || !answers || !timeSpent) {
       return res.status(400).json({ 
@@ -185,7 +185,7 @@ router.get('/history/:userId', requireAuth, async (req, res) => {
     const { userId } = req.params;
 
     // Check authorization
-    if (userId !== req.session.userId.toString() && req.session.role !== 'admin') {
+    if (userId !== req.userId.toString() && req.userRole !== 'admin') {
       return res.status(403).json({ error: 'Unauthorized access' });
     }
 
@@ -209,7 +209,7 @@ router.get('/history/:userId', requireAuth, async (req, res) => {
 router.get('/details/:quizId', requireAuth, async (req, res) => {
   try {
     const { quizId } = req.params;
-    const userId = req.session.userId;
+    const userId = req.userId; // Changed from req.session.userId to req.userId (JWT)
 
     const progress = await Progress.findOne({ 
       _id: quizId, 

@@ -12,7 +12,7 @@ router.get('/:userId', requireAuth, async (req, res) => {
     const { userId } = req.params;
 
     // Check authorization
-    if (userId !== req.session.userId.toString() && req.session.role !== 'admin') {
+    if (userId !== req.userId.toString() && req.userRole !== 'admin') {
       return res.status(403).json({ error: 'Unauthorized access' });
     }
 
