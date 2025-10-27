@@ -1,9 +1,19 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
+import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
+
+// Generate JWT token
+const generateToken = (userId, role) => {
+  return jwt.sign(
+    { userId, role },
+    process.env.SESSION_SECRET || 'your-secret-key',
+    { expiresIn: '7d' } // Token expires in 7 days
+  );
+};
 
 // Register
 router.post('/register', [
@@ -34,32 +44,20 @@ router.post('/register', [
 
     await user.save();
 
-    // Create session
-    req.session.userId = user._id;
-    req.session.role = user.role;
+    // Generate JWT token
+    const token = generateToken(user._id, user.role);
 
-    console.log('✅ Registration - Creating session for user:', user._id);
-    console.log('✅ Session before save:', req.session);
+    console.log('✅ Registration - Created token for user:', user._id);
 
-    // Explicitly save session before sending response
-    req.session.save((err) => {
-      if (err) {
-        console.error('❌ Session save error:', err);
-        return res.status(500).json({ error: 'Failed to create session' });
+    res.status(201).json({
+      message: 'User registered successfully',
+      token, // Return token instead of setting cookie
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
       }
-      
-      console.log('✅ Session saved successfully');
-      console.log('✅ Session ID:', req.sessionID);
-      
-      res.status(201).json({
-        message: 'User registered successfully',
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role
-        }
-      });
     });
   } catch (error) {
     console.error('Register error:', error);
@@ -96,33 +94,21 @@ router.post('/login', [
     user.learningStats.lastActive = new Date();
     await user.save();
 
-    // Create session
-    req.session.userId = user._id;
-    req.session.role = user.role;
+    // Generate JWT token
+    const token = generateToken(user._id, user.role);
 
-    console.log('✅ Login - Creating session for user:', user._id);
-    console.log('✅ Session before save:', req.session);
+    console.log('✅ Login - Created token for user:', user._id);
 
-    // Explicitly save session before sending response
-    req.session.save((err) => {
-      if (err) {
-        console.error('❌ Session save error:', err);
-        return res.status(500).json({ error: 'Failed to create session' });
+    res.json({
+      message: 'Login successful',
+      token, // Return token
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        learningStats: user.learningStats
       }
-
-      console.log('✅ Session saved successfully');
-      console.log('✅ Session ID:', req.sessionID);
-
-      res.json({
-        message: 'Login successful',
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          learningStats: user.learningStats
-        }
-      });
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -132,19 +118,14 @@ router.post('/login', [
 
 // Logout
 router.post('/logout', (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).json({ error: 'Could not log out' });
-    }
-    res.clearCookie('connect.sid');
-    res.json({ message: 'Logged out successfully' });
-  });
+  // With JWT, logout is handled on frontend by removing token
+  res.json({ message: 'Logged out successfully' });
 });
 
 // Get current user
 router.get('/me', requireAuth, async (req, res) => {
   try {
-    const user = await User.findById(req.session.userId);
+    const user = await User.findById(req.userId); // Changed from req.session.userId to req.userId
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
