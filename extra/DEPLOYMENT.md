@@ -203,7 +203,10 @@ Example: `https://ai-learn-backend.onrender.com`
 
 1. Go back to Render backend service
 2. Environment → **"CORS_ORIGIN"** → `<your-vercel-url>`
-3. Click **"Save Changes"**
+   - ⚠️ **IMPORTANT**: Must match EXACT frontend URL (including subdomain)
+   - Example: `https://ai-learn-frontend.vercel.app` (NO trailing slash)
+   - Vercel gives two URLs - use the shorter one without your username
+3. Click **"Save Changes"** (backend will redeploy in 2-3 minutes)
 
 ---
 
@@ -271,6 +274,21 @@ NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
 
 ## Troubleshooting
 
+### Issue: 401 Unauthorized after login/registration (Session cookies not working)
+**Error**: `Failed to fetch user: 401` in console, keeps redirecting to login
+**Solution**: 
+- Backend session cookies need `secure: true` and `sameSite: 'none'` for cross-origin requests
+- Already fixed in latest commit - wait for Render redeploy (2-3 minutes)
+- **IMPORTANT**: Clear browser cookies after redeploy (DevTools → Application → Cookies → Clear)
+- See `SESSION_COOKIE_FIX.md` for complete guide
+
+### Issue: CORS errors (XMLHttpRequest blocked)
+**Error**: `Access-Control-Allow-Origin header has a value that is not equal to the supplied origin`
+**Solution**: 
+- Verify `CORS_ORIGIN` in Render backend matches exact Vercel URL (no trailing slash)
+- Use shorter Vercel URL: `https://ai-learn-frontend.vercel.app` (not the one with your username)
+- Must match exactly - check browser console error for actual URLs
+
 ### Issue: Python/Cython compilation errors in ML service
 **Error**: `'int_t' is not a type identifier` or scikit-learn build failures
 **Solution**: 
@@ -278,14 +296,18 @@ NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
 - Python 3.13 is not yet fully supported by scikit-learn
 - See `extra/ML_SERVICE_FIX.md` for detailed fix
 
+### Issue: ML service not going live (detecting port but stuck)
+**Error**: Service logs show "Detected service running on port 5001" but never "Your service is live"
+**Solution**:
+- Render requires `$PORT` variable, not hardcoded port
+- Start command should be: `gunicorn --bind 0.0.0.0:$PORT app:app`
+- See `RENDER_PORT_FIX.md` for complete fix
+
 ### Issue: Backend timing out
 **Solution**: Render free tier sleeps after 15 min of inactivity. First request takes 30-60s to wake up.
 
 ### Issue: ML model not loading
 **Solution**: Check build logs. Ensure `train_model.py` ran successfully during build.
-
-### Issue: CORS errors
-**Solution**: Verify `CORS_ORIGIN` matches exact Vercel URL (no trailing slash).
 
 ### Issue: Session not persisting
 **Solution**: Ensure MongoDB connection string is correct and cluster is active.
