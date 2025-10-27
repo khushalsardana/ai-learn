@@ -152,6 +152,7 @@ def rule_based_analysis(data):
     })
 
 if __name__ == '__main__':
-    port = int(os.getenv('FLASK_PORT', 5001))
+    port = int(os.getenv('PORT', os.getenv('FLASK_PORT', 5001)))
+    debug = os.getenv('FLASK_ENV', 'production') == 'development'
     print(f"🚀 Starting ML Service on port {port}")
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=debug)

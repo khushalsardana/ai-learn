@@ -147,16 +147,18 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
    - **Root Directory**: `ml_service`
    - **Runtime**: `Python 3` (will automatically use Python 3.11 from runtime.txt)
    - **Build Command**: `pip install --upgrade pip && pip install -r requirements.txt && python train_model.py`
-   - **Start Command**: `python app.py`
+   - **Start Command**: `gunicorn --bind 0.0.0.0:$PORT app:app`
    - **Instance Type**: `Free`
 
 ### 2. Add Environment Variables
 
 ```
-FLASK_PORT=5001
+PORT=5001
 FLASK_ENV=production
 MODEL_PATH=./model.pkl
 ```
+
+**Important**: Render automatically sets `PORT`, but we include it for clarity.
 
 3. Click **"Create Web Service"**
 4. Wait for deployment
@@ -255,7 +257,7 @@ CORS_ORIGIN=https://your-frontend.vercel.app
 
 ### ML Service (.env)
 ```env
-FLASK_PORT=5001
+PORT=5001
 FLASK_ENV=production
 MODEL_PATH=./model.pkl
 ```

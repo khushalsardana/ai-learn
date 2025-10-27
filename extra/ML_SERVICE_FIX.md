@@ -71,17 +71,18 @@ When setting up the ML service on Render, use these settings:
   ```
 - **Start Command**: 
   ```bash
-  python app.py
+  gunicorn --bind 0.0.0.0:$PORT app:app
   ```
+  ⚠️ **Important**: Use Gunicorn, NOT `python app.py` (production WSGI server)
 - **Instance Type**: `Free`
 
 ### Environment Variables:
 ```
-FLASK_PORT=5001
+PORT=5001
 FLASK_ENV=production
 MODEL_PATH=./model.pkl
-PYTHON_VERSION=3.11.10
 ```
+⚠️ **Important**: Set `FLASK_ENV=production` to disable debug mode
 
 ---
 
