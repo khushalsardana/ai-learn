@@ -19,10 +19,13 @@ const PORT = process.env.PORT || 5000;
 // Connect to MongoDB
 connectDB();
 
-// Middleware
+// CORS - MUST be before other middleware
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['set-cookie']
 }));
 
 app.use(express.json());
@@ -41,10 +44,11 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
       httpOnly: true,
-      secure: true, // Always true for HTTPS (Render uses HTTPS)
-      sameSite: 'none', // Required for cross-origin cookies
-      domain: undefined // Don't set domain - let browser handle it
-    }
+      secure: true, // Required for HTTPS
+      sameSite: 'none', // Required for cross-origin
+      path: '/' // Explicitly set path
+    },
+    proxy: true // Trust Render's proxy
   })
 );
 

@@ -1,5 +1,13 @@
 // Authentication middleware
 export const requireAuth = (req, res, next) => {
+  // Debug logging
+  console.log('=== AUTH CHECK ===');
+  console.log('Has session:', !!req.session);
+  console.log('Session ID:', req.sessionID);
+  console.log('Session userId:', req.session?.userId);
+  console.log('Cookies:', req.headers.cookie);
+  console.log('==================');
+  
   if (!req.session || !req.session.userId) {
     return res.status(401).json({ 
       error: 'Unauthorized',
