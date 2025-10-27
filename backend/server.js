@@ -37,6 +37,7 @@ app.use(
     secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
+    name: 'connect.sid', // Explicit session name
     store: MongoStore.create({
       mongoUrl: process.env.MONGODB_URI,
       touchAfter: 24 * 3600 // lazy session update
@@ -46,7 +47,8 @@ app.use(
       httpOnly: true,
       secure: true, // Required for HTTPS
       sameSite: 'none', // Required for cross-origin
-      path: '/' // Explicitly set path
+      path: '/', // Explicitly set path
+      partitioned: true // CHIPS - Required for Safari/iOS cross-site cookies
     },
     proxy: true // Trust Render's proxy
   })
