@@ -17,6 +17,13 @@ export default function Login() {
     try {
       const response = await authAPI.login(formData);
       console.log('Login successful:', response.data);
+      
+      // Save JWT token to localStorage
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        console.log('✅ Token saved to localStorage');
+      }
+      
       router.push('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Login failed. Please try again.');

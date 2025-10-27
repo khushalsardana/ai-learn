@@ -37,6 +37,13 @@ export default function Register() {
         password: formData.password
       });
       console.log('Registration successful:', response.data);
+      
+      // Save JWT token to localStorage
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        console.log('✅ Token saved to localStorage');
+      }
+      
       router.push('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Registration failed. Please try again.');

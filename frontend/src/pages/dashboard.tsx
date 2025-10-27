@@ -73,10 +73,18 @@ export default function Dashboard() {
 
   const handleLogout = async () => {
     try {
+      // Clear token from localStorage
+      localStorage.removeItem('token');
+      console.log('✅ Token removed from localStorage');
+      
+      // Optional: Call backend logout (not strictly necessary with JWT)
       await authAPI.logout();
+      
       router.push('/login');
     } catch (error) {
       console.error('Logout failed:', error);
+      // Still redirect even if API call fails
+      router.push('/login');
     }
   };
 
