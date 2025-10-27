@@ -70,6 +70,16 @@ def generate_recommendation(performance_level, avg_score, topic_diversity, recen
         else:
             return recommendations['default']
 
+@app.route('/', methods=['GET', 'HEAD'])
+def root():
+    """Root endpoint for health checks"""
+    return jsonify({
+        'status': 'OK',
+        'service': 'AI-Learn ML Service',
+        'version': '1.0.0',
+        'model_loaded': model is not None
+    })
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
