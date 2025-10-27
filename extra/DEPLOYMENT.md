@@ -145,8 +145,8 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
    - **Region**: Same as backend
    - **Branch**: `main`
    - **Root Directory**: `ml_service`
-   - **Runtime**: `Python 3`
-   - **Build Command**: `pip install -r requirements.txt && python train_model.py`
+   - **Runtime**: `Python 3` (will automatically use Python 3.11 from runtime.txt)
+   - **Build Command**: `pip install --upgrade pip && pip install -r requirements.txt && python train_model.py`
    - **Start Command**: `python app.py`
    - **Instance Type**: `Free`
 
@@ -268,6 +268,13 @@ NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
 ---
 
 ## Troubleshooting
+
+### Issue: Python/Cython compilation errors in ML service
+**Error**: `'int_t' is not a type identifier` or scikit-learn build failures
+**Solution**: 
+- Ensure `runtime.txt` exists in `ml_service/` folder with content: `python-3.11.10`
+- Python 3.13 is not yet fully supported by scikit-learn
+- See `extra/ML_SERVICE_FIX.md` for detailed fix
 
 ### Issue: Backend timing out
 **Solution**: Render free tier sleeps after 15 min of inactivity. First request takes 30-60s to wake up.
