@@ -1,8 +1,135 @@
-# 🚀 Quick Deployment Fix Summary
+# � Deployment Troubleshooting Guide
 
-## Problem You Encountered
+## 🚨 CURRENT ISSUE: 401 Session Cookie Error
 
-**Error on Render ML Service**: Cython compilation failed with:
+### Problem
+After registration/login, the frontend keeps getting **401 errors** when calling `/auth/me`, causing an infinite redirect loop back to the login page.
+
+---
+
+## ✅ Fixes Applied (Just Pushed)
+
+### Fix 1: CORS Origin - ✅ COMPLETED
+Updated `CORS_ORIGIN` to correct Vercel URL
+
+### Fix 2: Cookie Configuration - ✅ COMPLETED  
+Set `secure: true` and `sameSite: 'none'` for cross-origin cookies
+
+### Fix 3: Explicit Session Save - ⏳ DEPLOYING NOW
+Added `req.session.save()` callback in register/login routes  
+**Commit**: `1db71fb` - **WAIT FOR RENDER REDEPLOY**
+
+---
+
+## 🎯 WHAT TO DO NOW (STEP BY STEP)
+
+### Step 1: Wait for Render Redeploy (3-5 minutes) ⏰
+
+1. Go to [Render Dashboard](https://dashboard.render.com/)
+2. Click **`ai-learn-backend`** service  
+3. Click **"Logs"** tab
+4. Wait for:
+   ```
+   ==> Build successful!
+   🚀 Server running on port 5000
+   ```
+
+### Step 2: CLEAR ALL COOKIES (CRITICAL!) 🍪
+
+**Option A: Use Incognito Mode** (Easiest):
+- `Ctrl + Shift + N` (Chrome/Edge)
+- `Ctrl + Shift + P` (Firefox)
+
+**Option B: Clear Cookies Manually**:
+1. Press `F12` → **Application** tab
+2. **Cookies** → Delete ALL for:
+   - `https://ai-learn-frontend.vercel.app`
+   - `https://ai-learn-backend.onrender.com`
+
+### Step 3: Test Registration 🧪
+
+1. Open `https://ai-learn-frontend.vercel.app` (incognito)
+2. Open DevTools (`F12`) → **Network** tab
+3. Register with **NEW email**
+4. Watch for:
+   - `POST /auth/register` → Status **201** ✅
+   - Response has `Set-Cookie: connect.sid=...; Secure; SameSite=None` ✅
+   - `GET /auth/me` → Status **200** (NOT 401!) ✅
+   - Request has `Cookie: connect.sid=...` ✅
+
+---
+
+## 🔍 Debugging Checklist
+
+### Check Render Environment Variables
+```
+CORS_ORIGIN = https://ai-learn-frontend.vercel.app (EXACT match!)
+SESSION_SECRET = (32+ characters)
+MONGODB_URI = mongodb+srv://...
+NODE_ENV = production
+```
+
+### Verify Response Headers (Network Tab)
+After `POST /auth/register`:
+```
+✅ Set-Cookie: connect.sid=...; HttpOnly; Secure; SameSite=None
+✅ Access-Control-Allow-Origin: https://ai-learn-frontend.vercel.app
+✅ Access-Control-Allow-Credentials: true
+```
+
+### Verify Request Headers (Network Tab)  
+After registration, `GET /auth/me`:
+```
+✅ Cookie: connect.sid=...
+✅ Origin: https://ai-learn-frontend.vercel.app
+```
+
+---
+
+## 🐛 Common Issues
+
+### Issue: Still Getting 401
+**Solution**:
+1. Clear cookies completely (try incognito)
+2. Wait for Render redeploy to finish
+3. Check Render logs for errors
+4. Verify MongoDB is connected
+
+### Issue: No Set-Cookie Header
+**Solution**:
+1. Check Render logs for MongoDB errors
+2. Verify `MONGODB_URI` is correct
+3. Check MongoDB Atlas cluster is active
+
+### Issue: Cookie Not Sent with Requests
+**Solution**:
+1. Verify `SameSite=None` in Set-Cookie header
+2. Clear old cookies (old `SameSite=Lax` conflicts)
+3. Use incognito mode
+
+---
+
+## 📊 Expected Behavior After Fix
+
+✅ No 401 errors in console  
+✅ No infinite redirect loop  
+✅ Dashboard loads after registration  
+✅ Refreshing page keeps you logged in  
+✅ Can navigate between pages  
+
+---
+
+## ⏱️ Timeline
+
+- **Now**: Code pushed (commit `1db71fb`)
+- **+2 min**: Render starts build
+- **+5 min**: New code is LIVE → **TEST NOW**
+
+---
+
+## 📝 Previous Issues (RESOLVED)
+
+### ✅ ML Service Python Error (FIXED)
 ```
 'int_t' is not a type identifier
 AttributeError: 'ErrorType' object has no attribute 'rank'

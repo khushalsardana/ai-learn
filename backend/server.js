@@ -42,10 +42,20 @@ app.use(
       maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
       httpOnly: true,
       secure: true, // Always true for HTTPS (Render uses HTTPS)
-      sameSite: 'none' // Required for cross-origin cookies
+      sameSite: 'none', // Required for cross-origin cookies
+      domain: undefined // Don't set domain - let browser handle it
     }
   })
 );
+
+// Debug middleware - log session info
+app.use((req, res, next) => {
+  console.log('🔍 Request:', req.method, req.path);
+  console.log('🔍 Origin:', req.headers.origin);
+  console.log('🔍 Session ID:', req.sessionID);
+  console.log('🔍 Session Data:', req.session);
+  next();
+});
 
 // Routes
 app.use('/auth', authRoutes);
