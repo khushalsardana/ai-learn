@@ -38,14 +38,22 @@ router.post('/register', [
     req.session.userId = user._id;
     req.session.role = user.role;
 
-    res.status(201).json({
-      message: 'User registered successfully',
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
+    // Explicitly save session before sending response
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ error: 'Failed to create session' });
       }
+      
+      res.status(201).json({
+        message: 'User registered successfully',
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role
+        }
+      });
     });
   } catch (error) {
     console.error('Register error:', error);
@@ -86,15 +94,23 @@ router.post('/login', [
     req.session.userId = user._id;
     req.session.role = user.role;
 
-    res.json({
-      message: 'Login successful',
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        learningStats: user.learningStats
+    // Explicitly save session before sending response
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ error: 'Failed to create session' });
       }
+
+      res.json({
+        message: 'Login successful',
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          learningStats: user.learningStats
+        }
+      });
     });
   } catch (error) {
     console.error('Login error:', error);
